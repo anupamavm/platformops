@@ -1,0 +1,40 @@
+name: PlatformOps Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      # Terraform Init & Apply
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+      - name: Terraform Init
+        working-directory: ./terraform
+        run: terraform init
+      - name: Terraform Apply
+        working-directory: ./terraform
+        run: terraform apply -auto-approve
+
+      # Ansible configuration
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+      - name: Install Ansible
+        run: pip install ansible
+      - name: Run Ansible Playbook
+        run: ansible-playbook -i ./ansible/inventory.ini ./ansible/playbook.yml
+
+      # Helm deployment
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+      - name: Deploy via Helm
+        run: helm upgrade --install platform-api ./helm/platform-api

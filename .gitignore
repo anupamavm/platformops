@@ -1,16 +1,8 @@
-# Compiled class file
+# Java/Maven
 *.class
-
-# Log file
 *.log
-
-# BlueJ files
 *.ctxt
-
-# Mobile Tools for Java (J2ME)
 .mtj.tmp/
-
-# Package Files #
 *.jar
 *.war
 *.nar
@@ -18,7 +10,63 @@
 *.zip
 *.tar.gz
 *.rar
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+target/
+!.mvn/wrapper/maven-wrapper.jar
+*.orig
+
+# Terraform
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+*.tfvars
+!terraform.tfvars.example
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+.metadata/
+
+# OS
+.DS_Store
+Thumbs.db
+*.tmp
+
+# Docker
+.dockerignore
+
+# Kubernetes
+*.kubeconfig
+
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.crt
+secrets/
+
+# Ansible
+*.retry
+.vault_pass
+
+# Logs
+logs/
+*.log.*
