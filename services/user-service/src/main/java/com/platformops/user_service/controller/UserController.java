@@ -1,13 +1,17 @@
 package com.platformops.user_service.controller;
 
-import com.platformops.user_service.dto.CreateUserRequest;
 import com.platformops.user_service.dto.UpdateUserRequest;
 import com.platformops.user_service.model.User;
 import com.platformops.user_service.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,6 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 @Tag(name = "User Management", description = "Endpoints for managing user accounts and profiles")
+@SecurityRequirement(name = "bearerAuth")
 public class UserController {
     @Autowired
     private UserService userService;
@@ -39,38 +44,48 @@ public class UserController {
         return userService.getUserById(id);
     }
 
-    @PostMapping
+    @GetMapping("/me")
     @Operation(
-            summary = "Create a new user",
-            description = "Register a new user in the system. The email must be unique. Useful for user sign-up flows."
+            summary = "Get current user profile",
+            description = "Retrieve the profile of the currently authenticated user"
     )
-    public User createUser(
-            @Parameter(description = "User creation request with name, email, and password", required = true)
-            @RequestBody CreateUserRequest request) {
-        return userService.createUser(request);
+    public ResponseEntity<?> getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String authenticatedEmail = authentication.getName();
+
+        User user = userService.getUserByEmail(authenticatedEmail);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("User not found");
+        }
+
+        return ResponseEntity.ok(user);
     }
 
     @PutMapping("/{id}")
     @Operation(
             summary = "Update a user",
-            description = "Update the details of an existing user by their ID. Useful for profile updates or admin edits."
+            description = "Update the details of the authenticated user. Users can only update their own profile."
     )
-    public User updateUser(
+    public ResponseEntity<?> updateUser(
             @Parameter(description = "ID of the user to update", example = "1")
             @PathVariable Long id,
             @Parameter(description = "User update request with name, email, and password", required = true)
             @RequestBody UpdateUserRequest request) {
-        return userService.updateUser(id, request);
+
+        User updatedUser = userService.updateUser(id, request);
+        return ResponseEntity.ok(updatedUser);
     }
 
     @DeleteMapping("/{id}")
     @Operation(
             summary = "Delete a user",
-            description = "Remove a user from the system by their ID. Useful for user account deletion or admin cleanup."
+            description = "Remove the authenticated user's account from the system. Users can only delete their own account."
     )
-    public void deleteUser(
+    public ResponseEntity<?> deleteUser(
             @Parameter(description = "ID of the user to delete", example = "1")
             @PathVariable Long id) {
         userService.deleteUser(id);
+        return ResponseEntity.ok("User deleted successfully");
     }
 }

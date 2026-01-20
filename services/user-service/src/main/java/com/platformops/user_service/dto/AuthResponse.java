@@ -6,8 +6,12 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateUserRequest {
+@Builder
+public class AuthResponse {
+    private String token;
+    @Builder.Default
+    private String type = "Bearer";
+    private Long id;
     private String name;
     private String email;
-    private String password;
 }

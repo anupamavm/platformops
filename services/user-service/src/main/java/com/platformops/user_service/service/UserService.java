@@ -1,11 +1,12 @@
 package com.platformops.user_service.service;
 
 
-import com.platformops.user_service.dto.CreateUserRequest;
+import com.platformops.user_service.dto.RegisterRequest;
 import com.platformops.user_service.dto.UpdateUserRequest;
 import com.platformops.user_service.model.User;
 import com.platformops.user_service.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,6 +16,9 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
@@ -23,20 +27,17 @@ public class UserService {
         return userRepository.findById(id).orElse(null);
     }
 
-    public User createUser(CreateUserRequest request) {
-        User user = new User();
-        user.setName(request.getName());
-        user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
-        return userRepository.save(user);
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElse(null);
     }
+
 
     public User updateUser(Long id, UpdateUserRequest request) {
         User existingUser = userRepository.findById(id).orElse(null);
         if (existingUser != null) {
             existingUser.setName(request.getName());
             existingUser.setEmail(request.getEmail());
-            existingUser.setPassword(request.getPassword());
+            existingUser.setPassword(passwordEncoder.encode(request.getPassword()));
             return userRepository.save(existingUser);
         }
         return null;
