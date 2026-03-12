@@ -9,18 +9,31 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8081
+          issuer-uri: ${USER_SERVICE_JWT_URL:http://user-service:8081}
 
   cloud:
     gateway:
       routes:
+
         - id: user-service
-          uri: http://localhost:8081
+          uri: ${USER_SERVICE_URL:http://user-service:8081}
           predicates:
             - Path=/auth/**,/api/v1/users/**
+
+        - id: order-service
+          uri: ${ORDER_SERVICE_URL:http://order-service:8082}
+          predicates:
+            - Path=/api/v1/orders/**
+
+        - id: ai-service
+          uri: ${AI_SERVICE_URL:http://ai-service:8000}
+          predicates:
+            - Path=/api/v1/ai/**
 
 management:
   endpoints:
     web:
       exposure:
         include: health,info,prometheus
+
+debug: true
