@@ -117,6 +117,19 @@ services:
     networks:
       - platformops-net
 
+  analytics-service:
+    build:
+      context: ./services/analytics-service
+    container_name: analytics-service
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    depends_on:
+      - kafka
+    networks:
+      - platformops-net
+
   # --------------------------
   # API Gateway
   # --------------------------
